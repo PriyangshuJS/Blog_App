@@ -22,9 +22,32 @@ class _BlogPageState extends State<BlogPage> {
   void initState() {
     super.initState();
     fetchBlogs();
+    _getDataHive();
   }
 
   final _likeBlog = Hive.box("LikedBlog");
+
+  List<BlogPost> _favblogs = [];
+  void _getDataHive() {
+    final data = _likeBlog.keys
+        .map((key) {
+          final item = _likeBlog.get(key);
+          return BlogPost(
+            title: item['title'] ?? '',
+            imageUrl: item['imageUrl'] ?? '',
+            content: item['content'] ?? '',
+            liked: true,
+          );
+        })
+        .toList()
+        .reversed
+        .toSet();
+
+    setState(() {
+      _favblogs = data.toList();
+      print("FAVBLOG- ${_favblogs[0].imageUrl}");
+    });
+  }
 
   Future<void> _blogDownload({
     required String title,
@@ -39,6 +62,7 @@ class _BlogPageState extends State<BlogPage> {
       "liked": liked,
     };
     await _likeBlog.add(newItem);
+    _getDataHive();
     print("No of offline BLOG - ${_likeBlog.length}");
   }
 
@@ -134,16 +158,17 @@ class _BlogPageState extends State<BlogPage> {
                   ),
 
             // Tab 2: Display liked blogs from Hive
+
             _likeBlog.length == 0
                 ? const Center(
                     child:
                         Text("You have not liked any Blogs or Articles Yet!"),
                   )
                 : ListView.builder(
-                    itemCount: _likeBlog.length,
+                    itemCount: _favblogs.length,
                     itemBuilder: (context, index) {
-                      final likedBlog = _likeBlog.getAt(
-                          index); // Retrieve the item at the specified index
+                      final likedBlog = _favblogs[index]; // Get the key
+                      // Retrieve the item using the key
                       if (likedBlog != null) {
                         return Container(
                           decoration: const BoxDecoration(
