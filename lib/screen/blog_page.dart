@@ -1,12 +1,11 @@
 import 'dart:convert';
-import 'package:blogapp/screen/blog_detail.dart';
-
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:http/http.dart' as http;
-
 import '../models/blog_model.dart';
+import '../widget/blog_struct1.dart';
 import '../widget/blog_stuct.dart';
+import 'blog_detail.dart';
 
 class BlogPage extends StatefulWidget {
   const BlogPage({Key? key});
@@ -51,7 +50,7 @@ class _BlogPageState extends State<BlogPage> {
     });
   }
 
-  Future<void> _blogDownload({
+  Future<bool> _blogDownload({
     required String id,
     required String title,
     required String imageUrl,
@@ -73,41 +72,15 @@ class _BlogPageState extends State<BlogPage> {
       };
       await _likeBlog.add(newItem);
       _getDataHive();
-      // ignore: use_build_context_synchronously
-      showDialog(
-        context: context,
-        builder: (context) {
-          Future.delayed(const Duration(seconds: 1), () {
-            Navigator.of(context).pop(true);
-          });
-          return AlertDialog(
-            title: Text(
-              'Article - $title added to Favorites',
-              style: const TextStyle(fontSize: 12),
-            ),
-          );
-        },
-      );
+
       print("No of offline BLOG - ${_likeBlog.length}");
+      return true;
     } else {
-      showDialog(
-        context: context,
-        builder: (context) {
-          Future.delayed(const Duration(seconds: 1), () {
-            Navigator.of(context).pop(true);
-          });
-          return AlertDialog(
-            title: Text(
-              'Article - $title already there in your Favorites',
-              style: const TextStyle(fontSize: 12),
-            ),
-          );
-        },
-      );
+      return false;
     }
   }
 
-  Future<void> _deleteBlog({required String title}) async {
+  Future<bool> _deleteBlog({required String title}) async {
     final key = _likeBlog.keys.firstWhere(
       (key) {
         final item = _likeBlog.get(key);
@@ -118,27 +91,16 @@ class _BlogPageState extends State<BlogPage> {
 
     if (key != null) {
       await _likeBlog.delete(key);
+      setState(() {});
       _getDataHive();
-      print("ADTER DEL LEN -${_likeBlog.length}");
-      // ignore: use_build_context_synchronously
-      showDialog(
-          context: context,
-          builder: (context) {
-            Future.delayed(const Duration(seconds: 1), () {
-              Navigator.of(context).pop(true);
-            });
-            return AlertDialog(
-              title: Text(
-                'Article - $title removed from Favourites',
-                style: const TextStyle(fontSize: 12),
-              ),
-            );
-          });
+      print("AFTER DEL LEN - ${_likeBlog.length}");
+      return true;
     }
+    return false;
   }
 
   Future<void> fetchBlogs() async {
-    final String url = 'https://intent-kit-16.hasura.app/api/rest/blogs';
+    const String url = 'https://intent-kit-16.hasura.app/api/rest/blogs';
     const String adminSecret =
         '32qR4KmXOIpsGPQKMqEJHGJS27G5s7HdSKO3gdtQd2kv5e852SiYwWNfxkZOBuQ6';
 
@@ -237,7 +199,7 @@ class _BlogPageState extends State<BlogPage> {
             'Blog and Articles',
             style: TextStyle(fontSize: 24),
           ),
-          backgroundColor: Color.fromRGBO(33, 33, 33, 1),
+          backgroundColor: const Color.fromRGBO(33, 33, 33, 1),
           iconTheme:
               const IconThemeData(color: Color.fromRGBO(222, 219, 204, 1)),
           titleTextStyle:
@@ -261,13 +223,32 @@ class _BlogPageState extends State<BlogPage> {
                                 BorderRadius.all(Radius.circular(20))),
                         height: 300,
                         child: InkWell(
-                          onDoubleTap: () => _blogDownload(
-                            id: post.id,
-                            title: post.title,
-                            imageUrl: post.imageUrl,
-                            content: post.content,
-                            liked: post.liked,
-                          ),
+                          onDoubleTap: () async {
+                            final added = await _blogDownload(
+                              id: post.id,
+                              title: post.title,
+                              imageUrl: post.imageUrl,
+                              content: post.content,
+                              liked: post.liked,
+                            );
+                            if (added) {
+                              // ignore: use_build_context_synchronously
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Article added to Favorites'),
+                                  duration: Duration(seconds: 1),
+                                ),
+                              );
+                            } else {
+                              // ignore: use_build_context_synchronously
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Article already in Favorites'),
+                                  duration: Duration(seconds: 1),
+                                ),
+                              );
+                            }
+                          },
                           onTap: () => Navigator.of(context).push(
                             MaterialPageRoute(
                               builder: (context) => BlogDetail(
@@ -275,11 +256,8 @@ class _BlogPageState extends State<BlogPage> {
                               ),
                             ),
                           ),
-                          child: BlogItemWidget(
-                            title: post.title,
-                            imageUrl: post.imageUrl,
-                            content: post.content,
-                            liked: post.liked,
+                          child: BlogItemWidget1(
+                            blogPost: post,
                           ),
                         ),
                       );
@@ -291,13 +269,16 @@ class _BlogPageState extends State<BlogPage> {
                 ? const Center(
                     child: Text(
                       "You have not liked any Blogs or Articles Yet!",
-                      style: TextStyle(color: Color.fromRGBO(222, 219, 204, 1)),
+                      style: TextStyle(
+                          color: Color.fromRGBO(222, 219, 204, 1),
+                          fontSize: 25),
+                      textAlign: TextAlign.center,
                     ),
                   )
                 : ListView.builder(
                     itemCount: _favblogs.length,
                     itemBuilder: (context, index) {
-                      final likedBlog = _favblogs[index]; // Get the key
+                      final likedBlog = _favblogs[index];
 
                       return Container(
                         decoration: const BoxDecoration(
@@ -305,8 +286,21 @@ class _BlogPageState extends State<BlogPage> {
                                 BorderRadius.all(Radius.circular(20))),
                         height: 300,
                         child: InkWell(
-                          onDoubleTap: () =>
-                              _deleteBlog(title: likedBlog.title),
+                          onDoubleTap: () async {
+                            final deleted = await _deleteBlog(
+                              title: likedBlog.title,
+                            );
+                            if (deleted) {
+                              // ignore: use_build_context_synchronously
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content:
+                                      Text('Article removed from Favorites'),
+                                  duration: Duration(seconds: 1),
+                                ),
+                              );
+                            }
+                          },
                           onTap: () => Navigator.of(context).push(
                             MaterialPageRoute(
                               builder: (context) => BlogDetail(
@@ -315,15 +309,13 @@ class _BlogPageState extends State<BlogPage> {
                             ),
                           ),
                           child: BlogItemWidget(
-                            title: likedBlog.title,
-                            imageUrl: likedBlog.imageUrl,
-                            content: likedBlog.content,
+                            blogPost: likedBlog,
                             liked: likedBlog.liked,
                           ),
                         ),
                       );
                     },
-                  )
+                  ),
           ],
         ),
       ),

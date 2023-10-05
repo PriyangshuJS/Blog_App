@@ -2,21 +2,22 @@ import 'package:flutter/material.dart';
 
 import '../models/blog_model.dart';
 
-class BlogItemWidget extends StatelessWidget {
-  final bool liked;
+class BlogItemWidget1 extends StatelessWidget {
   final BlogPost blogPost;
-  const BlogItemWidget({required this.liked, required this.blogPost});
+  const BlogItemWidget1({required this.blogPost});
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 3),
       child: Card(
+        elevation: 5,
+        shadowColor: Colors.teal,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(30.0),
+          borderRadius: BorderRadius.circular(10.0),
         ),
         child: ClipRRect(
-          borderRadius: const BorderRadius.all(Radius.circular(20)),
+          borderRadius: const BorderRadius.all(Radius.circular(10)),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -32,14 +33,6 @@ class BlogItemWidget extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.only(right: 8.0),
-                      child: Icon(
-                        liked ? Icons.favorite : Icons.favorite_border_outlined,
-                        color: liked ? Colors.red : Colors.white70,
-                        size: 30,
-                      ),
-                    ),
                     Flexible(
                       child: Text(
                         blogPost.title,
