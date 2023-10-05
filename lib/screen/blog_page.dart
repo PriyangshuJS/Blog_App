@@ -46,11 +46,11 @@ class _BlogPageState extends State<BlogPage> {
 
     setState(() {
       _favblogs = data.toList();
-      print("FAVBLOG- ${_favblogs[0].imageUrl}");
+      //print("FAVBLOG- ${_favblogs[0].imageUrl}");
     });
   }
 
-  Future<bool> _blogDownload({
+  Future<void> _blogDownload({
     required String id,
     required String title,
     required String imageUrl,
@@ -74,16 +74,30 @@ class _BlogPageState extends State<BlogPage> {
       _getDataHive();
 
       print("No of offline BLOG - ${_likeBlog.length}");
-      return true;
+
+      // Show SnackBar indicating the article was added to Favorites
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Article added to Favorites'),
+          duration: Duration(seconds: 1),
+        ),
+      );
     } else {
-      return false;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Article present in Favorites'),
+          duration: Duration(seconds: 1),
+        ),
+      );
     }
   }
 
-  Future<bool> _deleteBlog({required String title}) async {
+  Future<void> _deleteBlog({required String title}) async {
     final key = _likeBlog.keys.firstWhere(
       (key) {
         final item = _likeBlog.get(key);
+        print("DELEC=TE iitem -${item['title']}");
+        print("TITLE_$title");
         return item['title'] == title;
       },
       orElse: () => null,
@@ -91,12 +105,17 @@ class _BlogPageState extends State<BlogPage> {
 
     if (key != null) {
       await _likeBlog.delete(key);
-      setState(() {});
-      _getDataHive();
+      setState(() {
+        _getDataHive();
+      });
       print("AFTER DEL LEN - ${_likeBlog.length}");
-      return true;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Article removed from Favorites'),
+          duration: Duration(seconds: 1),
+        ),
+      );
     }
-    return false;
   }
 
   Future<void> fetchBlogs() async {
@@ -209,7 +228,7 @@ class _BlogPageState extends State<BlogPage> {
         body: TabBarView(
           children: [
             // Tab 1: Display blogs from the API
-            blogPosts.isEmpty
+            blogPosts.length == 0
                 ? const Center(
                     child: CircularProgressIndicator(),
                   )
@@ -223,32 +242,6 @@ class _BlogPageState extends State<BlogPage> {
                                 BorderRadius.all(Radius.circular(20))),
                         height: 300,
                         child: InkWell(
-                          onDoubleTap: () async {
-                            final added = await _blogDownload(
-                              id: post.id,
-                              title: post.title,
-                              imageUrl: post.imageUrl,
-                              content: post.content,
-                              liked: post.liked,
-                            );
-                            if (added) {
-                              // ignore: use_build_context_synchronously
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Article added to Favorites'),
-                                  duration: Duration(seconds: 1),
-                                ),
-                              );
-                            } else {
-                              // ignore: use_build_context_synchronously
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Article already in Favorites'),
-                                  duration: Duration(seconds: 1),
-                                ),
-                              );
-                            }
-                          },
                           onTap: () => Navigator.of(context).push(
                             MaterialPageRoute(
                               builder: (context) => BlogDetail(
@@ -256,8 +249,21 @@ class _BlogPageState extends State<BlogPage> {
                               ),
                             ),
                           ),
-                          child: BlogItemWidget1(
+                          child: BlogItemWidget(
                             blogPost: post,
+                            onLikeButtonPressed: (blogPost) {
+                              // Call _blogDownload function here
+                              _blogDownload(
+                                id: blogPost.id,
+                                title: blogPost.title,
+                                imageUrl: blogPost.imageUrl,
+                                content: blogPost.content,
+                                liked: blogPost.liked,
+                              );
+                            },
+                            // onDeleteButtonPressed: (title) {
+                            //   _deleteBlog(title: title);
+                            // },
                           ),
                         ),
                       );
@@ -286,21 +292,6 @@ class _BlogPageState extends State<BlogPage> {
                                 BorderRadius.all(Radius.circular(20))),
                         height: 300,
                         child: InkWell(
-                          onDoubleTap: () async {
-                            final deleted = await _deleteBlog(
-                              title: likedBlog.title,
-                            );
-                            if (deleted) {
-                              // ignore: use_build_context_synchronously
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content:
-                                      Text('Article removed from Favorites'),
-                                  duration: Duration(seconds: 1),
-                                ),
-                              );
-                            }
-                          },
                           onTap: () => Navigator.of(context).push(
                             MaterialPageRoute(
                               builder: (context) => BlogDetail(
@@ -308,9 +299,10 @@ class _BlogPageState extends State<BlogPage> {
                               ),
                             ),
                           ),
-                          child: BlogItemWidget(
+                          onDoubleTap: () =>
+                              _deleteBlog(title: likedBlog.title),
+                          child: BlogItemWidget1(
                             blogPost: likedBlog,
-                            liked: likedBlog.liked,
                           ),
                         ),
                       );

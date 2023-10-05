@@ -1,7 +1,6 @@
-import 'package:blogapp/likedblog.dart';
 import 'package:flutter/material.dart';
+
 import 'package:hive_flutter/adapters.dart';
-import 'package:provider/provider.dart';
 
 import 'screen/blog_page.dart';
 
@@ -9,12 +8,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
   await Hive.openBox("LikedBlog");
-  runApp(
-    ChangeNotifierProvider(
-      create: (context) => LikedBlogProvider(),
-      child: const MyApp(),
-    ),
-  );
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {

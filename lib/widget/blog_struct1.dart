@@ -4,6 +4,7 @@ import '../models/blog_model.dart';
 
 class BlogItemWidget1 extends StatelessWidget {
   final BlogPost blogPost;
+
   const BlogItemWidget1({required this.blogPost});
 
   @override
@@ -14,7 +15,7 @@ class BlogItemWidget1 extends StatelessWidget {
         elevation: 5,
         shadowColor: Colors.teal,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10.0),
+          borderRadius: BorderRadius.circular(10),
         ),
         child: ClipRRect(
           borderRadius: const BorderRadius.all(Radius.circular(10)),

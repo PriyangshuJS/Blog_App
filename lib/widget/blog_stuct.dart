@@ -2,27 +2,46 @@ import 'package:flutter/material.dart';
 
 import '../models/blog_model.dart';
 
-class BlogItemWidget extends StatelessWidget {
-  final bool liked;
+class BlogItemWidget extends StatefulWidget {
   final BlogPost blogPost;
-  const BlogItemWidget({required this.liked, required this.blogPost});
+  final Function(BlogPost) onLikeButtonPressed;
+  // final Function(String) onDeleteButtonPressed;
 
+  BlogItemWidget({
+    required this.blogPost,
+    required this.onLikeButtonPressed,
+    // required this.onDeleteButtonPressed,
+  });
+
+  @override
+  _BlogItemWidgetState createState() => _BlogItemWidgetState();
+}
+
+class _BlogItemWidgetState extends State<BlogItemWidget> {
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  bool isliked = false;
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 3),
       child: Card(
+        elevation: 5,
+        shadowColor: Colors.teal,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(30.0),
+          borderRadius: BorderRadius.circular(10),
         ),
         child: ClipRRect(
-          borderRadius: const BorderRadius.all(Radius.circular(20)),
+          borderRadius: const BorderRadius.all(Radius.circular(10)),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Expanded(
                 child: Image.network(
-                  blogPost.imageUrl,
+                  widget.blogPost.imageUrl,
                   fit: BoxFit.fill,
                 ),
               ),
@@ -34,15 +53,27 @@ class BlogItemWidget extends StatelessWidget {
                   children: [
                     Padding(
                       padding: const EdgeInsets.only(right: 8.0),
-                      child: Icon(
-                        liked ? Icons.favorite : Icons.favorite_border_outlined,
-                        color: liked ? Colors.red : Colors.white70,
-                        size: 30,
+                      child: GestureDetector(
+                        child: Icon(
+                          isliked
+                              ? Icons.favorite
+                              : Icons.favorite_border_outlined,
+                          color: isliked ? Colors.red : Colors.white70,
+                          size: 30,
+                        ),
+                        onTap: () {
+                          widget.onLikeButtonPressed(widget.blogPost);
+                          isliked = true;
+                        },
+                        // onDoubleTap: () {
+                        //   widget.onDeleteButtonPressed(widget.blogPost.title);
+                        //   isliked = false;
+                        // },
                       ),
                     ),
                     Flexible(
                       child: Text(
-                        blogPost.title,
+                        widget.blogPost.title,
                         style: const TextStyle(
                             fontSize: 18.0,
                             fontWeight: FontWeight.bold,
