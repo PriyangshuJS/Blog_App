@@ -5,12 +5,10 @@ import '../models/blog_model.dart';
 class BlogItemWidget extends StatefulWidget {
   final BlogPost blogPost;
   final Function(BlogPost) onLikeButtonPressed;
-  // final Function(String) onDeleteButtonPressed;
 
   BlogItemWidget({
     required this.blogPost,
     required this.onLikeButtonPressed,
-    // required this.onDeleteButtonPressed,
   });
 
   @override
@@ -65,10 +63,6 @@ class _BlogItemWidgetState extends State<BlogItemWidget> {
                           widget.onLikeButtonPressed(widget.blogPost);
                           isliked = true;
                         },
-                        // onDoubleTap: () {
-                        //   widget.onDeleteButtonPressed(widget.blogPost.title);
-                        //   isliked = false;
-                        // },
                       ),
                     ),
                     Flexible(

@@ -75,7 +75,6 @@ class _BlogPageState extends State<BlogPage> {
 
       print("No of offline BLOG - ${_likeBlog.length}");
 
-      // Show SnackBar indicating the article was added to Favorites
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Article added to Favorites'),
@@ -148,7 +147,6 @@ class _BlogPageState extends State<BlogPage> {
         print('Request failed with status code: ${response.statusCode}');
         print('Response data: ${response.body}');
 
-        // ignore: use_build_context_synchronously
         showDialog(
           context: context,
           builder: (BuildContext context) {
@@ -170,14 +168,12 @@ class _BlogPageState extends State<BlogPage> {
       }
     } catch (e) {
       print('Error: $e');
-
       showDialog(
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
             title: const Text("Sorry User!"),
-            content: const Text(
-                "An error occurred, it can be due to internet connectivity or some problem from our side.\nPlease try again later."),
+            content: Text("An error occurred,\n$e"),
             actions: <Widget>[
               TextButton(
                 onPressed: () {
@@ -227,7 +223,7 @@ class _BlogPageState extends State<BlogPage> {
         backgroundColor: const Color.fromRGBO(33, 33, 33, 1),
         body: TabBarView(
           children: [
-            // Tab 1: Display blogs from the API
+            // Tab 1: Blogs from the API
             blogPosts.length == 0
                 ? const Center(
                     child: CircularProgressIndicator(),
@@ -252,7 +248,6 @@ class _BlogPageState extends State<BlogPage> {
                           child: BlogItemWidget(
                             blogPost: post,
                             onLikeButtonPressed: (blogPost) {
-                              // Call _blogDownload function here
                               _blogDownload(
                                 id: blogPost.id,
                                 title: blogPost.title,
@@ -261,16 +256,13 @@ class _BlogPageState extends State<BlogPage> {
                                 liked: blogPost.liked,
                               );
                             },
-                            // onDeleteButtonPressed: (title) {
-                            //   _deleteBlog(title: title);
-                            // },
                           ),
                         ),
                       );
                     },
                   ),
 
-            // Tab 2: Display liked blogs from Hive
+            // Tab 2: Displaying liked blogs that are stored offline in Hive
             _favblogs.isEmpty
                 ? const Center(
                     child: Text(
