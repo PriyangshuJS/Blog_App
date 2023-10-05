@@ -6,7 +6,7 @@ class BlogItemWidget extends StatelessWidget {
   final String content;
   final bool liked;
 
-  BlogItemWidget({
+  const BlogItemWidget({
     required this.content,
     required this.title,
     required this.imageUrl,
@@ -16,54 +16,52 @@ class BlogItemWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 3),
       child: Card(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(30.0),
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Expanded(
-              child: SizedBox(
+        child: ClipRRect(
+          borderRadius: const BorderRadius.all(Radius.circular(20)),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(
                 child: Image.network(
                   imageUrl,
-                  fit: BoxFit.cover,
+                  fit: BoxFit.fill,
                 ),
               ),
-            ),
-            Container(
-              padding: EdgeInsets.all(10.0),
-              color: Colors.grey,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(right: 8.0),
-                    child: Icon(
-                      liked ? Icons.favorite : Icons.favorite_border_outlined,
-                      color: liked ? Colors.red : null,
-                    ),
-                  ),
-                  Flexible(
-                    child: Text(
-                      title,
-                      style: const TextStyle(
-                        fontSize: 18.0,
-                        fontWeight: FontWeight.bold,
+              Container(
+                padding: const EdgeInsets.all(10.0),
+                color: const Color.fromRGBO(48, 48, 48, 1),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(right: 8.0),
+                      child: Icon(
+                        liked ? Icons.favorite : Icons.favorite_border_outlined,
+                        color: liked ? Colors.red : Colors.white70,
+                        size: 30,
                       ),
-                      overflow: TextOverflow.ellipsis,
-                      maxLines: 2,
                     ),
-                  ),
-                  IconButton(
-                    icon: Icon(Icons.favorite_border_outlined),
-                    onPressed: null,
-                  ),
-                ],
+                    Flexible(
+                      child: Text(
+                        title,
+                        style: const TextStyle(
+                            fontSize: 18.0,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white),
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 2,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
